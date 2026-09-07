@@ -37,6 +37,7 @@ import static me.unariginal.moresparkles.placeholders.PlaceholderManager.registe
 public class MoreSparkles implements ModInitializer {
     public static final String MOD_ID = "moresparkles";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final ThreadLocal<Boolean> currentSpawnIsBaitBased = ThreadLocal.withInitial(() -> false);
 
     public static MoreSparkles INSTANCE;
 

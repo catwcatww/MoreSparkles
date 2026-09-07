@@ -4,6 +4,7 @@
   "package": "me.unariginal.moresparkles.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "PokemonSpawnActionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

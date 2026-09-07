@@ -11,6 +11,7 @@ import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawnCause;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.IVs;
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import me.unariginal.moresparkles.MoreSparkles;
 import me.unariginal.moresparkles.cache.PlayerBoostCache;
 import me.unariginal.moresparkles.configs.Config;
 import me.unariginal.moresparkles.configs.ItemsConfig;
@@ -43,6 +44,12 @@ public class EventManager {
     }
 
     private static void shinyBoost(ShinyChanceCalculationEvent event) {
+//        if (Boolean.TRUE.equals(MoreSparkles.currentSpawnIsBaitBased.get())) {
+//            MoreSparkles.LOGGER.info("[MoreSparkles] skipped boost");
+//            return;
+//        }
+//        MoreSparkles.LOGGER.info("[MoreSparkles] natural");
+
         if (!Config.canBeBoosted(event.getPokemon(), BoostType.SHINY)) return;
         event.addModificationFunction(((rate, player, pokemon) -> {
             if (player != null) {
