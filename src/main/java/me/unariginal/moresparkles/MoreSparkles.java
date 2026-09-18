@@ -32,10 +32,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawnCause;
+import com.cobblemon.mod.common.block.entity.PokeSnackBlockEntity;
 
 public class MoreSparkles implements ModInitializer {
     public static final String MOD_ID = "moresparkles";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final ThreadLocal<Boolean> currentSpawnIsBaitBased = ThreadLocal.withInitial(() -> false);
     public static boolean DEBUG = false;
 
     public static MoreSparkles INSTANCE;
@@ -94,6 +97,13 @@ public class MoreSparkles implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             shinySubscription = CobblemonEvents.SHINY_CHANCE_CALCULATION.subscribe(Priority.NORMAL, event -> {
+
+                if (Boolean.TRUE.equals(MoreSparkles.currentSpawnIsBaitBased.get())) {
+//                    LOGGER.info("skipped boost");
+                    return Unit.INSTANCE;
+                }
+//                LOGGER.info("natural");
+
                 if (globalBoost == null || !config.pausePlayerBoostsDuringGlobalBoost) {
                     for (ShinyBoost shinyBoost : activeBoosts) {
                         event.addModificationFunction(((rate, player, pokemon) -> {
