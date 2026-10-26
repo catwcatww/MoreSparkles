@@ -29,6 +29,7 @@ public class AlphaSpawningInfluence implements SpawningInfluence {
         if (multiplier == 1) return;
 
         for (String bucket : SpawnsManager.getAlphaBuckets()) {
+            if (SpawnsManager.getPokestopBuckets().contains(bucket)) continue;
             bucketWeights.computeIfPresent(bucket, (b, w) -> w * multiplier);
         }
     }

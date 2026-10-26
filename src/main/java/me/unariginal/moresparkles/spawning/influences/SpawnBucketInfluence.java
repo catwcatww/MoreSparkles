@@ -2,10 +2,13 @@ package me.unariginal.moresparkles.spawning.influences;
 
 import com.cobblemon.mod.common.api.spawning.influence.SpawningInfluence;
 import me.unariginal.moresparkles.data.BoostType;
+import me.unariginal.moresparkles.managers.SpawnsManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import static me.unariginal.moresparkles.managers.BoostManager.getGenericMultiplierTotal;
 
@@ -21,22 +24,24 @@ public class SpawnBucketInfluence implements SpawningInfluence {
         float multiplier = getGenericMultiplierTotal(player, BoostType.SPAWN_BUCKET);
         if (multiplier <= 0F || multiplier == 1F) return;
 
-        Float bossWeight = bucketWeights.get("boss");
-        float originalNonBossWeightTotal = (float) bucketWeights.entrySet().stream()
-                .filter(e -> !e.getKey().equals("boss"))
-                .mapToDouble(Map.Entry::getValue)
-                .sum();
+        Set<String> exempt = SpawnsManager.getPokestopBuckets();
+        Predicate<String> flatten = b -> !b.equals("boss") && !exempt.contains(b);
+
+        float originalTotal = (float) bucketWeights.entrySet().stream()
+                .filter(e -> flatten.test(e.getKey()))
+                .mapToDouble(Map.Entry::getValue).sum();
 
         float exponent = 1.0F / multiplier;
         bucketWeights.replaceAll((bucket, weight) ->
-                bucket.equals("boss") ? weight : (float) Math.pow(weight, exponent));
+                flatten.test(bucket) ? (float) Math.pow(weight, exponent) : weight);
 
-        if (bossWeight != null && originalNonBossWeightTotal > 0F) {
-            float newNonBossTotal = (float) bucketWeights.entrySet().stream()
-                    .filter(e -> !e.getKey().equals("boss"))
-                    .mapToDouble(Map.Entry::getValue)
-                    .sum();
-            bucketWeights.put("boss", bossWeight * (newNonBossTotal / originalNonBossWeightTotal));
+        if (originalTotal > 0F) {
+            float newTotal = (float) bucketWeights.entrySet().stream()
+                    .filter(e -> flatten.test(e.getKey()))
+                    .mapToDouble(Map.Entry::getValue).sum();
+            float ratio = newTotal / originalTotal;
+            bucketWeights.computeIfPresent("boss", (b, w) -> w * ratio);
+            for (String b : exempt) bucketWeights.computeIfPresent(b, (k, w) -> w * ratio);
         }
     }
 }
